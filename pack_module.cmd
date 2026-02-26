@@ -1,1 +1,0 @@
-nasher pack default --verbose

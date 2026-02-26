@@ -2,9 +2,7 @@
 *.erf
 *.hak
 *.mod
-*.ndb
-*.nwm
+*.tlk
 
 # Ignore the nasher directory
 .nasher/
-/_release

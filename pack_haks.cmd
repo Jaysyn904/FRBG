@@ -1,1 +1,1 @@
-nasher pack tophak --verbose
+nasher pack default --verbose

@@ -1,1 +1,0 @@
-nasher unpack default --verbose -y
