@@ -1,0 +1,11 @@
+2DA V2.0
+
+           Label          FeatConstPrefix 
+0          INVALID        ****            
+1          Ethnicity      ETHNICITY_      
+2          "Social Class" SOCIAL_CLASS_   
+3          Past           BACKGROUND_     
+4          Deity          DEITY_          
+5          Proficiency    PROFICIENCY_    
+6          Age            AGE_CATEGORY_   
+7          Disability     DISABILITY_     

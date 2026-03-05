@@ -1,0 +1,26 @@
+2DA V2.0
+
+           Label                 FeatConstant            FeatIndex Name     Description 
+0          Affluence             BACKGROUND_AFFLUENCE    1153      16925516 16925517    
+1          Brawler               BACKGROUND_BRAWLER      1154      16925518 16925519    
+2          Cosmopolitan          BACKGROUND_COSMOPOLITAN 1155      16925520 16925521    
+3          Crusader              BACKGROUND_CRUSADER     1156      16925522 16925523    
+4          Duelist               BACKGROUND_DUELIST      1157      16925524 16925525    
+5          Evangelist            BACKGROUND_EVANGELIST   1158      16925526 16925527    
+6          Forester              BACKGROUND_FORESTER     1159      16925528 16925529    
+7          "Hard Laborer"        BACKGROUND_HARD_LABORER 1160      16925530 16925531    
+8          Healer                BACKGROUND_HEALER       1161      16925532 16925533    
+9          Knight                BACKGROUND_KNIGHT       1162      16925534 16925535    
+10         "Hedge Mage"          BACKGROUND_HEDGEMAGE    1163      16925536 16925537    
+11         Mendicant             BACKGROUND_MENDICANT    1164      16925538 16925539    
+12         Merchant              BACKGROUND_MERCHANT     1165      16925540 16925541    
+13         Metalsmith            BACKGROUND_METALSMITH   1166      16925542 16925543    
+14         Minstrel              BACKGROUND_MINSTREL     1167      16925544 16925545    
+15         Occultist             BACKGROUND_OCCULTIST    1168      16925546 16925547    
+16         Saboteur              BACKGROUND_SABOTEUR     1169      16925548 16925549    
+17         Scout                 BACKGROUND_SCOUT        1170      16925550 16925551    
+18         Sneak                 BACKGROUND_SNEAK        1171      16925552 16925553    
+19         Soldier               BACKGROUND_SOLDIER      1172      16925554 16925555    
+20         Traveler              BACKGROUND_TRAVELER     1173      16925556 16925557    
+21         Spellfire             BACKGROUND_SPELLFIRE    1174      16925558 16925559    
+22         "Natural Lycanthrope" BACKGROUND_NATLYCAN     1175      16925560 16925561    
