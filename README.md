@@ -10,3 +10,5 @@ Repository for the development of NWN Backgrounds system.
 ## Instructions
 
 	Run the pack_hakpaks.cmd files to generate the resources.  
+
+	[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Jaysyn904/FRBG)
