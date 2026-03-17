@@ -12,6 +12,6 @@ void main()
         return;  
     }  
   
-    SpeakString("DEBUG: Starting bg_background_cv for " + GetName(oUser));  
+    SpeakString("DEBUG: Starting bg_subrace_cv for " + GetName(oUser));  
     StartDynamicConversation("bg_subrace_cv", oUser);  
 }

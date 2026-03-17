@@ -12,16 +12,18 @@ string GetSubraceText(object oPC, int nChoice) {
     return GetLocalString(oPC, "sub_dyn_text_" + IntToString(nChoice));  
 }  
   
-// Ensure the PC Data Object exists; create if missing  
-object EnsurePlayerDataObject(object oPC)  
-{  
-    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");  
-    if (!GetIsObjectValid(oItem))  
-    {  
-        oItem = CreateItemOnObject("pc_data_object", oPC);  
-    }  
-    return oItem;  
-}
+// Ensure the PC Data Object exists; create if missing    
+object EnsurePlayerDataObject(object oPC)    
+{   
+    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");    
+    if (!GetIsObjectValid(oItem))    
+    {    
+        oItem = CreateItemOnObject("pc_data_object", oPC);
+		SendMessageToPC(oPC, "Language data object recreated");
+		WriteTimestampedLogEntry("Language data object recreated"); 		
+    }    
+    return oItem;    
+}   
 
 void main()     
 {      
@@ -71,11 +73,11 @@ void main()
 					
 					AddChoice("Maztican", 7, oPC);  
                     SetLocalString(oPC, "sub_dyn_text_7",  
-                        "After the Helmite conquest in Maztica, many people of the differing tribes lumped together by the Easterners began to immigrate to the old world and see what wonders lied across the Trackless Sea. Truely a people displaced, Mazticans are unfamiliar with the customs of the Tethyrians or the Chondathans. Rumors of Helmite abuse and exploitation in Maztica are common, much more common than the sight of a simple Maztican.\n\nDoes this describe you?");  
+                        "After the Helmite conquest in Maztica, many people of the differing tribes lumped together by the Easterners began to immigrate to the old world and see what wonders lied across the Trackless Sea. Truely a people displaced, Mazticans are unfamiliar with the customs of the Tethyrians or the Chondathans. Rumors of Helmite abuse and exploitation in Maztica are common, much more common than the sight of a simple Maztican.  Mazticans receive Maztilan as a bonus language automatically.\n\nDoes this describe you?");  
   
 					AddChoice("Chultan", 8, oPC);  
                     SetLocalString(oPC, "sub_dyn_text_8",  
-                        "The jungles of Chult are a harsh and unforgiving land that forged together the many disparate tribes of the peninsula into one single culture more than a millennia ago. Most Chultans distrust power and wealth, believing that things that they cannot take with them are ultimately worthless. It is rare to see a Chultan separated from their clan. Chultans are tall and ebony-skinned.\n\nDoes this describe you?"); 
+                        "The jungles of Chult are a harsh and unforgiving land that forged together the many disparate tribes of the peninsula into one single culture more than a millennia ago. Most Chultans distrust power and wealth, believing that things that they cannot take with them are ultimately worthless. It is rare to see a Chultan separated from their clan. Tall and ebony-skinned, Chultans receive Chultan as a bonus language automatically.\n\nDoes this describe you?"); 
                     
 					AddChoice("Chondathan", 9, oPC);  
                     SetLocalString(oPC, "sub_dyn_text_9",  

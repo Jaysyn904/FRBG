@@ -4,17 +4,89 @@
 #include "inc_persist_loca"
 #include "te_afflic_func"   
 
-// Ensure the PC Data Object exists; create if missing  
-object EnsurePlayerDataObject(object oPC = OBJECT_SELF)  
-{  
-    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");  
-    if (!GetIsObjectValid(oItem))  
-    {  
-        oItem = CreateItemOnObject("pc_data_object", oPC);  
-    }  
-    return oItem;  
-}  
+// Ensure the PC Data Object exists; create if missing    
+object EnsurePlayerDataObject(object oPC)    
+{   
+    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");    
+    if (!GetIsObjectValid(oItem))    
+    {    
+        oItem = CreateItemOnObject("pc_data_object", oPC);
+		SendMessageToPC(oPC, "Language data object recreated");
+		WriteTimestampedLogEntry("Language data object recreated"); 		
+    }    
+    return oItem;    
+}   
 
+// Check if PC already knows a proficiency
+int KnowsProficiency(object oPC, int nProficiencyFeat)  
+{  
+    object oItem = EnsurePlayerDataObject(oPC);  
+  
+    int i = 0;  
+    string sSlot;  
+  
+    while (i < 10)  
+    {  
+        sSlot = "PROFICIENCY_" + (i < 10 ? "0" : "") + IntToString(i);  
+  
+        // Check BOTH storage locations where GrantnProficiency saves data  
+        if (GetPersistantLocalInt(oPC, sSlot) == nProficiencyFeat)  
+            return TRUE;  
+  
+        if (GetIsObjectValid(oItem))  
+        {  
+            if (GetLocalInt(oItem, sSlot) == nProficiencyFeat)  
+                return TRUE;  
+        }  
+  
+        i++;  
+    }  
+  
+    return FALSE;  
+}
+
+// Function to get the next available proficiency slot     
+int GetNextProficiencySlot(object oPC)    
+{    
+    object oItem = EnsurePlayerDataObject(oPC);    
+    if (!GetIsObjectValid(oItem)) return 0;    
+        
+    int i = 0;    
+    string sSlot;    
+        
+    // Find the first empty slot    
+    while (i < 99) 
+    {    
+        sSlot = "PROFICIENCY_" + (i < 10 ? "0" : "") + IntToString(i);    
+        if (!GetLocalInt(oItem, sSlot))    
+            return i;    
+        i++;    
+    }    
+    return -1; // No slots available    
+}
+ 
+  // Grant a proficiency to PC 
+ void GrantProficiency(object oPC, int nProficiencyFeat)
+{
+    object oItem = EnsurePlayerDataObject(oPC);
+    if (!GetIsObjectValid(oItem)) return;
+
+    if (KnowsProficiency(oPC, nProficiencyFeat))
+        return;
+
+    int nSlot = GetNextProficiencySlot(oPC);
+    if (nSlot >= 0)
+    {
+        string sSlot = "PROFICIENCY_" + (nSlot < 10 ? "0" : "") + IntToString(nSlot);
+        SetLocalInt(oItem, sSlot, nProficiencyFeat);
+        SetPersistantLocalInt(oPC, sSlot, nProficiencyFeat);
+    }
+
+    // mark as selected for the conversation list
+    SetLocalInt(oPC, IntToString(nProficiencyFeat), TRUE);
+}
+ 
+ 
 
 // prof_chk_alchemy  
 // Requirements: Any Standing  
@@ -192,7 +264,10 @@ const int CHOICE_CONFIRM_NO = 101;
   
 void main() {    
     object oPC = GetPCSpeaker();    
-    SendMessageToPC(oPC, "DEBUG: bg_prof_cv main() entered");    
+    SendMessageToPC(oPC, "DEBUG: bg_prof_cv main() entered"); 
+
+	object oItem = EnsurePlayerDataObject(oPC);
+	
     int nValue = GetLocalInt(oPC, DYNCONV_VARIABLE);    
     int nStage = GetStage(oPC);    
     
@@ -327,11 +402,15 @@ void main() {
         // Handle PC responses    
         int nChoice = GetChoice(oPC);    
           
-        if (nStage == STAGE_LIST) {  
-            if (nChoice == 21) {    
+        if (nStage == STAGE_LIST) 
+		{  
+            if (nChoice == 21) 
+			{    
                 // Done - finalize and proceed to next step  
                 ExecuteScript("prof_give_nomore", oPC);    
-            } else if (nChoice >= 1 && nChoice <= 20) {    
+            } 
+			else if (nChoice >= 1 && nChoice <= 20) 
+			{    
                 // Store proficiency info for confirmation  
                 string sProfName;  
                 string sProfVar;  
@@ -339,26 +418,166 @@ void main() {
                   
                 switch (nChoice) 
 				{    
-                    case 1:  sProfName = "Alchemy"; sProfVar = "ALCHEMY"; sGrant = "prof_give_alchem"; break;    
-                    case 2:  sProfName = "Anatomy"; sProfVar = "ANATOMY"; sGrant = "prof_give_anatomy"; break;    
-                    case 3:  sProfName = "Armorsmithing"; sProfVar = "ARMOR"; sGrant = "prof_give_armor"; break;    
-                    case 4:  sProfName = "Astronomy"; sProfVar = "ASTRO"; sGrant = "prof_give_astro"; break;    
-                    case 5:  sProfName = "Carpentry"; sProfVar = "CARP"; sGrant = "prof_give_carp"; break;    
-                    case 6:  sProfName = "Decipher Script"; sProfVar = "DECIPH"; sGrant = "prof_give_deciph"; break;    
-                    case 7:  sProfName = "Disguise"; sProfVar = "DISGUISE"; sGrant = "prof_give_disgui"; break;    
-                    case 8:  sProfName = "Firemaking"; sProfVar = "FIRE"; sGrant = "prof_give_fire"; break;    
-                    case 9:  sProfName = "Gunsmithing"; sProfVar = "GUNS"; sGrant = "prof_give_guns"; break;    
-                    case 10: sProfName = "Herbalism"; sProfVar = "HERB"; sGrant = "prof_give_herb"; break;    
-                    case 11: sProfName = "History"; sProfVar = "HIST"; sGrant = "prof_give_hist"; break;    
-                    case 12: sProfName = "Hunting"; sProfVar = "HUNT"; sGrant = "prof_give_hunt"; break;    
-                    case 13: sProfName = "Masonry"; sProfVar = "MASON"; sGrant = "prof_give_mason"; break;    
-                    case 14: sProfName = "Mining"; sProfVar = "MINING"; sGrant = "prof_give_mine"; break;    
-                    case 15: sProfName = "Observation"; sProfVar = "OBS"; sGrant = "prof_give_obs"; break;    
-                    case 16: sProfName = "Siege Engineering"; sProfVar = "SIEGE"; sGrant = "prof_give_siege"; break;    
-                    case 17: sProfName = "Smelting"; sProfVar = "SMELT"; sGrant = "prof_give_smelt"; break;    
-                    case 18: sProfName = "Tailoring"; sProfVar = "TAILOR"; sGrant = "prof_give_tailor"; break;    
-                    case 19: sProfName = "Tracking"; sProfVar = "TRACK"; sGrant = "prof_give_track"; break;    
-                    case 20: sProfName = "Wood Gathering"; sProfVar = "WOOD"; sGrant = "prof_give_wood"; break;    
+                    case 1:
+					{
+						sProfName = "Alchemy"; 
+						sProfVar = "ALCHEMY"; 
+						//sGrant = "prof_give_alchem"; 
+						GrantProficiency(oPC, PROFICIENCY_ALCHEMY);						
+						break; 
+					}						
+                    case 2:
+					{
+						sProfName = "Anatomy"; 
+						sProfVar = "ANATOMY"; 
+						//sGrant = "prof_give_anatomy"; 
+						GrantProficiency(oPC, PROFICIENCY_ANATOMY);	
+						break;    
+					}					
+                    case 3:
+					{
+						sProfName = "Armorsmithing"; 
+						sProfVar = "ARMOR"; 
+						//sGrant = "prof_give_armor"; 
+						GrantProficiency(oPC, PROFICIENCY_ARMORING);
+						break;    
+					}
+                    case 4:
+					{
+						sProfName = "Astrology"; 
+						sProfVar = "ASTRO"; 
+						//sGrant = "prof_give_astro"; 
+						GrantProficiency(oPC, PROFICIENCY_ASTROLOGY);
+						break;
+					}						
+                    case 5:
+					{
+						sProfName = "Carpentry"; 
+						sProfVar = "CARP"; 
+						//sGrant = "prof_give_carp"; 
+						GrantProficiency(oPC, PROFICIENCY_CARPENTRY);
+						break;    
+					}
+                    case 6:
+					{
+						sProfName = "Decipher Script"; 
+						sProfVar = "DECIPH"; 
+						//sGrant = "prof_give_deciph"; 
+						GrantProficiency(oPC, PROFICIENCY_DECIPHER);
+						break;    
+					}
+                    case 7:
+					{
+						sProfName = "Disguise"; 
+						sProfVar = "DISGUISE"; 
+						//sGrant = "prof_give_disgui"; 
+						GrantProficiency(oPC, PROFICIENCY_DISGUISE);
+						break;    
+					}
+                    case 8:
+					{
+						sProfName = "Firemaking"; 
+						sProfVar = "FIRE"; 
+						//sGrant = "prof_give_fire"; 
+						GrantProficiency(oPC, PROFICIENCY_FIRE);
+						break;    
+					}
+                    case 9:
+					{
+						sProfName = "Gunsmithing"; 
+						sProfVar = "GUNS"; 
+						//sGrant = "prof_give_guns"; 
+						GrantProficiency(oPC, PROFICIENCY_GUNSMITHING);
+						break;
+					}						
+                    case 10: 
+					{
+						sProfName = "Herbalism"; 
+						sProfVar = "HERB"; 
+						//sGrant = "prof_give_herb"; 
+						GrantProficiency(oPC, PROFICIENCY_HERBALISM);
+						break;    
+					}
+                    case 11:
+					{
+						sProfName = "History"; 
+						sProfVar = "HIST"; 
+						//sGrant = "prof_give_hist"; 
+						GrantProficiency(oPC, PROFICIENCY_HISTORY);
+						break;
+					}						
+                    case 12:
+					{
+						sProfName = "Hunting"; 
+						sProfVar = "HUNT"; 
+						//sGrant = "prof_give_hunt";
+						GrantProficiency(oPC, PROFICIENCY_HUNTING);
+						break;    
+					}
+                    case 13:
+					{
+						sProfName = "Masonry"; 
+						sProfVar = "MASON"; 
+						//sGrant = "prof_give_mason";
+						GrantProficiency(oPC, PROFICIENCY_MASONRY);
+						break;    
+					}
+                    case 14:
+					{
+						sProfName = "Mining"; 
+						sProfVar = "MINING"; 
+						//sGrant = "prof_give_mine"; 
+						GrantProficiency(oPC, PROFICIENCY_MINING);
+						break;    
+					}
+                    case 15: 
+					{
+						sProfName = "Observation"; 
+						sProfVar = "OBS"; 
+						//sGrant = "prof_give_obs"; 
+						GrantProficiency(oPC, PROFICIENCY_OBSERVATION);
+						break;    
+					}
+                    case 16:
+					{
+						sProfName = "Siege Engineering"; 
+						sProfVar = "SIEGE"; 
+						//sGrant = "prof_give_siege"; 
+						GrantProficiency(oPC, PROFICIENCY_SIEGE);
+						break;    
+					}
+                    case 17:
+					{
+						sProfName = "Smelting"; 
+						sProfVar = "SMELT"; 
+						//sGrant = "prof_give_smelt"; 
+						GrantProficiency(oPC, PROFICIENCY_SMELTING);
+						break;    
+					}
+                    case 18:
+					{
+						sProfName = "Tailoring"; 
+						sProfVar = "TAILOR"; 
+						//sGrant = "prof_give_tailor"; 
+						GrantProficiency(oPC, PROFICIENCY_TAILORING);
+						break;
+					}						
+                    case 19:
+					{
+						sProfName = "Tracking"; 
+						sProfVar = "TRACK"; 
+						//sGrant = "prof_give_track";
+						GrantProficiency(oPC, PROFICIENCY_TRACKING);
+						break;    
+					}
+                    case 20:
+					{
+						sProfName = "Wood Gathering"; 
+						sProfVar = "WOOD"; 
+						//sGrant = "prof_give_wood"; 
+						GrantProficiency(oPC, PROFICIENCY_WOOD_GATHERING);
+						break;
+					}						
                 }  
                   
                 SetLocalString(oPC, "TEMP_PROF_NAME", sProfName);  
@@ -370,46 +589,61 @@ void main() {
                 SetStage(STAGE_CONFIRM, oPC);  
             }  
         }  
-        else if (nStage == STAGE_CONFIRM) {  
-            if (nChoice == CHOICE_CONFIRM_YES) {  
-                // Confirm selection - grant proficiency  
-                string sProfVar = GetLocalString(oPC, "TEMP_PROF_VAR");  
-                string sGrant = GetLocalString(oPC, "TEMP_PROF_GRANT");  
-                  
-                // Mark as selected  
-                SetLocalInt(oPC, "PROF_SELECTED_" + sProfVar, TRUE);  
-                  
-                // Increment count  
-                int nCount = GetLocalInt(oPC, "PROFICIENCY_COUNT") + 1;  
-                SetLocalInt(oPC, "PROFICIENCY_COUNT", nCount);  
-                  
-                // Grant the proficiency  
-                ExecuteScript(sGrant, oPC);  
-                  
-                // Clean up temp vars  
-                DeleteLocalString(oPC, "TEMP_PROF_NAME");  
-                DeleteLocalString(oPC, "TEMP_PROF_VAR");  
-                DeleteLocalString(oPC, "TEMP_PROF_GRANT");  
-                DeleteLocalString(oPC, "TEMP_PROF_DESC");  
-                  
-                // Check if player has selected 3 proficiencies  
-                if (nCount >= 3) {  
-                    // Auto-finish  
-                    ExecuteScript("prof_give_nomore", oPC);  
-                } 
-				else
+        else if (nStage == STAGE_CONFIRM) 
+		{  
+            if (nChoice == CHOICE_CONFIRM_YES) 
+			{  
+				// Confirm selection - grant proficiency  
+				string sProfVar = GetLocalString(oPC, "TEMP_PROF_VAR");  
+				string sGrant = GetLocalString(oPC, "TEMP_PROF_GRANT");  
+				  
+				// Mark as selected  
+				SetLocalInt(oPC, "PROF_SELECTED_" + sProfVar, TRUE);  
+				  
+				// Increment count  
+				int nCount = GetLocalInt(oPC, "PROFICIENCY_COUNT") + 1;  
+				SetLocalInt(oPC, "PROFICIENCY_COUNT", nCount);  
+				  
+				// Grant the proficiency  
+				ExecuteScript(sGrant, oPC);  
+				  
+				// Clean up temp vars  
+				DeleteLocalString(oPC, "TEMP_PROF_NAME");  
+				DeleteLocalString(oPC, "TEMP_PROF_VAR");  
+				DeleteLocalString(oPC, "TEMP_PROF_GRANT");  
+				DeleteLocalString(oPC, "TEMP_PROF_DESC");  
+				  
+				// Check if player has selected 3 proficiencies  
+				if (nCount >= 3) 
+				{  
+					// Auto-finish  
+					SetLocalInt(oItem,"BG_Select",6);
+					ActionStartConversation(oPC,"bg_final",TRUE); 
+				} 
+				else 
 				{  
 					// Return to list, force refresh  
-					MarkStageNotSetUp(STAGE_CONFIRM, oPC);  // Add this line  
+					MarkStageNotSetUp(STAGE_CONFIRM, oPC);  
 					MarkStageNotSetUp(STAGE_LIST, oPC);  
-					SetStage(STAGE_LIST, oPC);   
+					nStage = STAGE_LIST; // Add this line  
 				}  
-            }  
-            else if (nChoice == CHOICE_CONFIRM_NO) {  
-                // Go back to list
-				MarkStageNotSetUp(STAGE_CONFIRM, oPC);				
-                SetStage(STAGE_LIST, oPC);  
-            }  
+			} 
+            else if (nChoice == CHOICE_CONFIRM_NO)   
+			{      
+				// Clean up temp vars before going back    
+				DeleteLocalString(oPC, "TEMP_PROF_NAME");      
+				DeleteLocalString(oPC, "TEMP_PROF_VAR");      
+				DeleteLocalString(oPC, "TEMP_PROF_GRANT");      
+				DeleteLocalString(oPC, "TEMP_PROF_DESC");    
+				
+				// Go back to list - update local nStage variable    
+				MarkStageNotSetUp(STAGE_CONFIRM, oPC);    
+				MarkStageNotSetUp(STAGE_LIST, oPC); 				    
+				nStage = STAGE_LIST; // update local nStage        
+			}
+			
+			SetStage(nStage, oPC);			
         }  
     }    
 }
+

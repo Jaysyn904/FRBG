@@ -13,17 +13,18 @@ string GetBackgroundText(object oPC, int nChoice)
     return GetLocalString(oPC, "bg_dyn_text_" + IntToString(nChoice));  
 }  
 
-// Ensure the PC Data Object exists; create if missing  
-object EnsurePlayerDataObject(object oPC)  
-{  
-    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");  
-    if (!GetIsObjectValid(oItem))  
-    {  
-        oItem = CreateItemOnObject("pc_data_object", oPC);  
-    }  
-    return oItem;  
-}  
-
+// Ensure the PC Data Object exists; create if missing    
+object EnsurePlayerDataObject(object oPC)    
+{   
+    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");    
+    if (!GetIsObjectValid(oItem))    
+    {    
+        oItem = CreateItemOnObject("pc_data_object", oPC);
+		SendMessageToPC(oPC, "Language data object recreated");
+		WriteTimestampedLogEntry("Language data object recreated"); 		
+    }    
+    return oItem;    
+}   
 int _CanBeAffluent(object oPC = OBJECT_SELF)
 {
 
