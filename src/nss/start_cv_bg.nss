@@ -1,4 +1,4 @@
-#include "inc_dynconv"  
+#include "bg_inc_dynconv" 
   
 void main()  
 {  
@@ -13,5 +13,5 @@ void main()
     }  
   
     SpeakString("DEBUG: Starting bg_background_cv for " + GetName(oUser));  
-    StartDynamicConversation("bg_background_cv", oUser);  
+    StartDynamicConversation("bg_background_cv", oUser, FALSE, FALSE, TRUE, OBJECT_SELF);  
 }

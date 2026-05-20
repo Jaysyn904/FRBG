@@ -1,4 +1,4 @@
-#include "inc_dynconv"  
+#include "bg_inc_dynconv"  
   
 void main()  
 {  
@@ -12,6 +12,6 @@ void main()
         return;  
     }  
   
-    SpeakString("DEBUG: Starting bg_subrace_cv for " + GetName(oUser));  
-    StartDynamicConversation("bg_subrace_cv", oUser);  
+    SpeakString("DEBUG: Starting bg_subrace_cv for " + GetName(oUser)); 
+    StartDynamicConversation("bg_subrace_cv", oUser, FALSE, FALSE, TRUE, OBJECT_SELF); 
 }

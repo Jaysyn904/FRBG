@@ -1,7 +1,7 @@
 // bg_proficiency_cv.nss  
-#include "inc_dynconv"  
+#include "bg_inc_dynconv"  
 #include "x2_inc_switches"  
-#include "inc_persist_loca"
+#include "bg_inc_p_locals"
 #include "te_afflic_func"   
 
 // Ensure the PC Data Object exists; create if missing    
@@ -264,7 +264,7 @@ const int CHOICE_CONFIRM_NO = 101;
   
 void main() {    
     object oPC = GetPCSpeaker();    
-    SendMessageToPC(oPC, "DEBUG: bg_prof_cv main() entered"); 
+    //SendMessageToPC(oPC, "DEBUG: bg_prof_cv main() entered"); 
 
 	object oItem = EnsurePlayerDataObject(oPC);
 	
@@ -398,7 +398,14 @@ void main() {
             }  
         }    
         SetupTokens();    
-    } else {    
+    }
+    else if (nValue == DYNCONV_EXITED)    
+    {        
+		SetPersistantLocalInt(oPC, "Background_Stage", 6);
+		DelayCommand(0.1f, StartDynamicConversation("bg_age_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));		
+    }  	
+	else 
+	{    
         // Handle PC responses    
         int nChoice = GetChoice(oPC);    
           
@@ -406,8 +413,10 @@ void main() {
 		{  
             if (nChoice == 21) 
 			{    
-                // Done - finalize and proceed to next step  
-                ExecuteScript("prof_give_nomore", oPC);    
+                // Done - finalize and proceed to next step       
+				SetPersistantLocalInt(oPC, "CC5_DONE", 1);
+                SetLocalInt(oItem, "CC5_DONE", 1);                   
+                AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC); 	   
             } 
 			else if (nChoice >= 1 && nChoice <= 20) 
 			{    
@@ -618,14 +627,15 @@ void main() {
 				{  
 					// Auto-finish  
 					SetLocalInt(oItem,"BG_Select",6);
-					ActionStartConversation(oPC,"bg_final",TRUE); 
+					AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC);
+					//DelayCommand(0.1f, StartDynamicConversation("bg_age_cv", oPC));  
 				} 
 				else 
 				{  
 					// Return to list, force refresh  
 					MarkStageNotSetUp(STAGE_CONFIRM, oPC);  
 					MarkStageNotSetUp(STAGE_LIST, oPC);  
-					nStage = STAGE_LIST; // Add this line  
+					nStage = STAGE_LIST;
 				}  
 			} 
             else if (nChoice == CHOICE_CONFIRM_NO)   

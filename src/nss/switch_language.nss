@@ -1,4 +1,4 @@
-#include "prc_effect_inc"
+
 
 void main()
 {
@@ -7,7 +7,7 @@ void main()
     
     if (GetHasSpellEffect(nSpellID, oPC))
 	{
-        PRCRemoveSpellEffects(nSpellID, oPC, oPC);
+        RemoveSpellEffects(nSpellID, oPC, oPC);
 	}
     else
     {

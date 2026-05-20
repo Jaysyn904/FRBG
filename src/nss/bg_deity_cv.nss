@@ -1,5 +1,5 @@
 // bg_deity_cv.nss  
-#include "inc_dynconv"  
+#include "bg_inc_dynconv"   
 #include "bg_inc_p_locals"
 #include "inc_alignment"
 #include "te_afflic_func"
@@ -42,7 +42,7 @@ object EnsurePlayerDataObject(object oPC)
 void main()     
 {      
     object oPC = GetPCSpeaker(); 
-	SendMessageToPC(oPC, "DEBUG: bg_deity_cv main() entered");
+	//SendMessageToPC(oPC, "DEBUG: bg_deity_cv main() entered");
 	
 	int nRacialType		= GetRacialType(oPC);
 	int nAlignment		= GetCreaturesAlignment(oPC);	
@@ -1317,8 +1317,9 @@ void main()
 					}    
 				}
 				AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC);    
-				SetPersistantLocalInt(oPC, "CC3_DONE", 1);    
-				DelayCommand(0.1f, StartDynamicConversation("bg_language_cv", oPC));				    
+				SetPersistantLocalInt(oPC, "CC3_DONE", 1); 			
+				SetPersistantLocalInt(oPC, "Background_Stage", 4);
+				DelayCommand(0.1f, StartDynamicConversation("bg_language_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));				    
             }      
             else     
 			{ // No      

@@ -1,8 +1,9 @@
 // bg_language_cv.nss    
-#include "inc_dynconv"    
+#include "bg_inc_dynconv"     
 #include "x2_inc_switches"    
-#include "inc_persist_loca"    
+#include "bg_inc_p_locals"  
 #include "te_afflic_func"   
+#include "te_lang"  
   
 // Ensure the PC Data Object exists; create if missing    
 object EnsurePlayerDataObject(object oPC)    
@@ -88,15 +89,14 @@ int GetNextLanguageSlot(object oPC)
     {
         string sSlot = "LANGUAGE_" + (nSlot < 10 ? "0" : "") + IntToString(nSlot);
         SetLocalInt(oItem, sSlot, nLanguageFeat);
-        SetPersistantLocalInt(oPC, sSlot, nLanguageFeat);
+        SetPersistantLocalInt(oPC, sSlot, nLanguageFeat);		
     }
 
     // mark as selected for the conversation list
     SetLocalInt(oPC, IntToString(nLanguageFeat), TRUE);
 }
  
- 
-// Count automatic racial and class languages using slot-searching pattern      
+ // Count automatic racial and class languages using slot-searching pattern      
 int GetAutomaticLanguageCount(object oPC)      
 {      
     int nAutomaticLanguages = 0;      
@@ -348,7 +348,7 @@ void main() {
     // Grant automatic languages before starting conversation  
     GrantDefaultLanguages(oPC);  
 	
-    SendMessageToPC(oPC, "DEBUG: bg_language_cv main() entered");      
+    //SendMessageToPC(oPC, "DEBUG: bg_language_cv main() entered");      
     int nValue = GetLocalInt(oPC, DYNCONV_VARIABLE);      
     int nStage = GetStage(oPC); 
 
@@ -369,7 +369,8 @@ void main() {
       
     if (nValue == DYNCONV_SETUP_STAGE) {    
         if (!GetIsStageSetUp(nStage, oPC)) {      
-            if (nStage == STAGE_LIST) {      
+            if (nStage == STAGE_LIST) 
+			{      
                 // Initialize language count if not set    
                 if (!GetLocalInt(oPC, "LANGUAGE_COUNT")) {    
                     SetLocalInt(oPC, "LANGUAGE_COUNT", 0);    
@@ -458,7 +459,7 @@ void main() {
 					AddChoice("Lantanese", 24, oPC);    
 				}    
 				if (nRemaining > 0 && !KnowsLanguage(oPC, FEAT_LANGUAGE_MAZTILAN)) {    
-					AddChoice("Mulanese", 25, oPC);    
+					AddChoice("Maztilan", 25, oPC);    
 				}    
 				if (nRemaining > 0 && !KnowsLanguage(oPC, FEAT_LANGUAGE_MULANESE)) {    
 					AddChoice("Mulanese", 26, oPC);    
@@ -488,11 +489,19 @@ void main() {
 					AddChoice("Undercommon", 34, oPC);    
 				}
                     
-                // Show Done option if at least one language selected    
-                if (nLangCount > 0) {    
+/*                 // Show Done option if at least one language selected    
+                if (nLangCount > 0) 
+				{    
                     AddChoice("Done - I have selected enough languages", 99, oPC);    
                     SetLocalString(oPC, "lang_dyn_text_99", "Finish language selection and continue to the next step.");    
-                }    
+                } */
+				
+				// Show Done option if at least one language selected OR no picks remaining  
+				if (nLangCount > 0 || nRemaining == 0) 
+				{      
+					AddChoice("Done - I have selected enough languages", 99, oPC);      
+					SetLocalString(oPC, "lang_dyn_text_99", "Finish language selection and continue to the next step.");      
+				}  			
                     
                 MarkStageSetUp(nStage, oPC);      
                 SetDefaultTokens();      
@@ -513,7 +522,14 @@ void main() {
             }    
         }      
         SetupTokens();      
-    } else {      
+    } 
+	else if (nValue == DYNCONV_EXITED)    
+    {    
+		SetPersistantLocalInt(oPC, "Background_Stage", 5);
+		DelayCommand(0.1f, StartDynamicConversation("bg_profs_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));		
+    } 
+	else 
+	{      
         // Handle PC responses      
         int nChoice = GetChoice(oPC);      
             
@@ -522,8 +538,11 @@ void main() {
 			if (nChoice == 99) 
 			{        
 				// Done - finalize and proceed to next step      
-				SetPersistantLocalInt(oPC, "CC4_DONE", 1);    
-				DelayCommand(0.1f, StartDynamicConversation("bg_profs_cv", oPC));        
+				SetPersistantLocalInt(oPC, "CC4_DONE", 1); 				
+                SetLocalInt(oItem, "CC4_DONE", 1);
+				SetPersistantLocalInt(oPC, "Background_Stage", 5);				
+				DelayCommand(0.1f, StartDynamicConversation("bg_profs_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));				
+                AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC); 				
 			} 
 			else if (nChoice >= 1 && nChoice <= 34) 
 			{        
@@ -644,8 +663,10 @@ void main() {
 				SetStage(STAGE_CONFIRM, oPC);      
 			}      
 		}    
-		else if (nStage == STAGE_CONFIRM) {      
-			if (nChoice == CHOICE_CONFIRM_YES) {      
+		else if (nStage == STAGE_CONFIRM) 
+		{      
+			if (nChoice == CHOICE_CONFIRM_YES) 
+			{      
 				// Confirm selection - grant language      
 				string sLangVar = GetLocalString(oPC, "TEMP_LANG_VAR");      
 				int nLanguageFeat = GetLocalInt(oPC, "TEMP_LANG_FEAT");      
@@ -670,10 +691,12 @@ void main() {
 				int nIntMod = GetAbilityModifier(ABILITY_INTELLIGENCE, oPC);      
 				if (nIntMod <= 0) nIntMod = 0;      
 						
-				if (nCount >= nIntMod) {      
+				if (nCount >= nIntMod) 
+				{      
 					SetPersistantLocalInt(oPC, "CC4_DONE", 1);      
+					SetPersistantLocalInt(oPC, "Background_Stage", 5);
+					DelayCommand(0.1f, StartDynamicConversation("bg_profs_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));      
 					AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC);  
-					DelayCommand(0.1f, StartDynamicConversation("bg_profs_cv", oPC));      
 				} 
 				else 
 				{      

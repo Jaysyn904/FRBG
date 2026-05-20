@@ -1,11 +1,24 @@
 // clear_bg_vars.nss    
-#include "inc_persist_loca"    
+#include "bg_inc_p_locals"  
+
+// Ensure the PC Data Object exists; create if missing    
+object EnsurePlayerDataObject(object oPC)    
+{   
+    object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");    
+    if (!GetIsObjectValid(oItem))    
+    {    
+        oItem = CreateItemOnObject("pc_data_object", oPC);
+		SendMessageToPC(oPC, "Language data object recreated");
+		WriteTimestampedLogEntry("Language data object recreated"); 		
+    }    
+    return oItem;    
+} 
     
 void main()    
 {    
     object oPC = OBJECT_SELF;    
         
-    object oDataObject = GetItemPossessedBy(oPC, "PC_Data_Object");    
+    object oDataObject = EnsurePlayerDataObject(oPC);    
     if (!GetIsObjectValid(oDataObject))    
     {    
         SendMessageToPC(oPC, "No PC_Data_Object found on this character.");    
@@ -61,7 +74,7 @@ void main()
 	DeleteLocalString(oPC, "TEMP_PROF_VAR");  
 	DeleteLocalString(oPC, "TEMP_PROF_GRANT");  
 	DeleteLocalString(oPC, "TEMP_PROF_DESC"); 
-	DeleteLocalString(oPC, "ARR_PROF"); 
+	DeleteLocalString(oPC, "ARR_PROF");
 	DeletePersistantLocalString(oPC, "ARR_PROF"); 
 	DeleteLocalInt(oPC, "PROFICIENCY_COUNT");
 	DeletePersistantLocalInt(oPC, "PROFICIENCY_COUNT");  	
@@ -74,6 +87,14 @@ void main()
         DeleteLocalInt(oDataObject, sSlot);    
         DeletePersistantLocalInt(oPC, sSlot);    
     }    
-        
+ 
+    // Clear PROFICIENCY_XX variables (new system)    
+    for (i = 0; i < 20; i++)    
+    {    
+        string sSlot = "PROFICIENCY_" + (i < 10 ? "0" : "") + IntToString(i);    
+        DeleteLocalInt(oDataObject, sSlot);    
+        DeletePersistantLocalInt(oPC, sSlot);    
+    }    
+	
     SendMessageToPC(oPC, "Character creation variables cleared.");    
 }

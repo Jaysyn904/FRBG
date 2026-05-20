@@ -1,7 +1,7 @@
 // bg_background_cv.nss  
-#include "inc_dynconv"  
+#include "bg_inc_dynconv"    
 #include "x2_inc_switches"  
-#include "inc_persist_loca"
+#include "bg_inc_p_locals"
 #include "te_afflic_func"
 
 
@@ -24,7 +24,8 @@ object EnsurePlayerDataObject(object oPC)
 		WriteTimestampedLogEntry("Language data object recreated"); 		
     }    
     return oItem;    
-}   
+}  
+ 
 int _CanBeAffluent(object oPC = OBJECT_SELF)
 {
 
@@ -491,7 +492,7 @@ void main()
 {            
     object oPC = GetPCSpeaker();           
     object oItem = EnsurePlayerDataObject(oPC);	          
-    SendMessageToPC(oPC, "DEBUG: bg_background_cv main() entered");            
+    //SendMessageToPC(oPC, "DEBUG: bg_background_cv main() entered");            
     int nValue = GetLocalInt(oPC, DYNCONV_VARIABLE);            
     int nStage = GetStage(oPC);         
         
@@ -595,7 +596,7 @@ void main()
 			    // 13  Eldreth Veluuthra  
                 if (nRacial == RACIAL_TYPE_ELF) 
 				{  
-                    AddChoice(" Eldreth Veluuthra", 13, oPC);  
+                    AddChoice("Eldreth Veluuthra", 13, oPC);  
                     SetLocalString(oPC, "bg_dyn_text_13",  
                         "You believe that elves are the superior race, and that they have a right as well as a duty to reclaim the Wealdath forest. You are angered or disgusted by the very existence of half elves and will strive to drive these abominations out of the unspoiled woods that remain..\n\nDoes this describe you?");  
                 }
@@ -869,7 +870,8 @@ void main()
     }          
     else if(nValue == DYNCONV_EXITED)          
     {          
-        DelayCommand(0.1f, StartDynamicConversation("bg_deity_cv", oPC));          
+        SetPersistantLocalInt(oPC, "Background_Stage", 3);
+		DelayCommand(0.1f, StartDynamicConversation("bg_deity_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));          
     }          
     else if(nValue == DYNCONV_ABORTED)          
     {          

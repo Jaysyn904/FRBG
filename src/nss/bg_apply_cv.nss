@@ -8,8 +8,8 @@
 #include "nwnx_creature"
 #include "te_afflic_func"
 #include "lv_inc"
-#include "inc_persist_loca"
 #include "te_lang"  
+#include "bg_inc_p_locals"
 
 // Ensure the PC Data Object exists; create if missing    
 object EnsurePlayerDataObject(object oPC)    
@@ -28,7 +28,7 @@ void ApplyProficiencies(object oPC)
 {    
     object oItem = EnsurePlayerDataObject(oPC);   
     if (!GetIsObjectValid(oItem)) {  
-        SendMessageToPC(oPC, "DEBUG: Invalid player data object");  
+        //SendMessageToPC(oPC, "DEBUG: Invalid player data object");  
         return;   
     }  
   
@@ -49,7 +49,7 @@ void ApplyProficiencies(object oPC)
             
         if (nProficiencyFeat > 0)    
         {    
-            SendMessageToPC(oPC, "DEBUG: Applying feat " + IntToString(nProficiencyFeat) + " from slot " + sSlot);  
+            //SendMessageToPC(oPC, "DEBUG: Applying feat " + IntToString(nProficiencyFeat) + " from slot " + sSlot);  
             NWNX_Creature_AddFeatByLevel(oPC, nProficiencyFeat, 1);  
             nFound++;  
   
@@ -63,7 +63,7 @@ void ApplyProficiencies(object oPC)
         i++;    
     }  
       
-    SendMessageToPC(oPC, "DEBUG: Applied " + IntToString(nFound) + " proficiencies");  
+    //SendMessageToPC(oPC, "DEBUG: Applied " + IntToString(nFound) + " proficiencies");  
 }
 
 /* void ApplyProficiencies(object oPC)  
@@ -103,6 +103,7 @@ void ApplyProficiencies(object oPC)
     }  
 }
  */
+
 void ApplyBonusLanguages(object oPC)  
 {  
     object oItem = GetItemPossessedBy(oPC, "PC_Data_Object");  
@@ -162,7 +163,8 @@ void main()
     int iSpellCraft = GetSkillRank(SKILL_SPELLCRAFT, oPC, TRUE);
     // Effects
     effect eSpellResist = EffectSpellResistanceIncrease(11+iCL);
-
+	
+	//SendMessageToPC(oPC, "DEBUG: bg_apply_cv main() entered"); 
 
     // Step 0: Subrace/Ethnicity (some of this might be redundant now)
     if (nSubrace > 0) NWNX_Creature_AddFeatByLevel(oPC, nSubrace, 1);
@@ -202,7 +204,7 @@ void main()
 			NWNX_Creature_AddFeatByLevel(oPC, FEAT_LANGUAGE_TALFIRIC, 1);
 
 			//:: For legacy DMFI
-			SetLocalInt(oItem, IntToString(LangFeatToLangID(FEAT_LANGUAGE_DAMARAN)), 1);			
+			SetLocalInt(oItem, IntToString(LangFeatToLangID(FEAT_LANGUAGE_TALFIRIC)), 1);			
         } 
 		break;
         case ETHNICITY_ILLUSKAN: 
@@ -565,7 +567,7 @@ void main()
     if (nDeity > 0) NWNX_Creature_AddFeat(oPC, nDeity);
 
     // Step 5: Languages	
-	ApplyBonusLanguages(oPC);
+	DelayCommand(0.0f, ApplyBonusLanguages(oPC));
 	
 /*     string sArr = GetLocalString(oItem, "ARR_LANGUAGES");
     int i; for (i = 0; i < ArrayLength(sArr); i++)
@@ -576,7 +578,7 @@ void main()
     DeleteLocalString(oItem, "ARR_LANGUAGES"); */
 
     // Step 6: Proficiencies
-	ApplyProficiencies(oPC);
+	DelayCommand(0.0f, ApplyProficiencies(oPC));
 	
 /*     sArr = GetLocalString(oItem, "ARR_PROF");
     for (i = 0; i < ArrayLength(sArr); i++)

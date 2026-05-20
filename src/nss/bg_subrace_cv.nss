@@ -1,9 +1,8 @@
 // bg_subrace_cv.nss  
-#include "inc_dynconv"  
+#include "bg_inc_dynconv"  
 #include "x2_inc_switches" 
-#include "inc_persist_loca"
+#include "bg_inc_p_locals"
 #include "te_afflic_func"
-
 
 const int STAGE_LIST    = 0;  
 const int STAGE_CONFIRM = 1;  
@@ -28,7 +27,7 @@ object EnsurePlayerDataObject(object oPC)
 void main()     
 {      
     object oPC = GetPCSpeaker();      
-    SendMessageToPC(oPC, "DEBUG: bg_subrace_cv main() entered");      
+    //SendMessageToPC(oPC, "DEBUG: bg_subrace_cv main() entered");      
     int nValue = GetLocalInt(oPC, DYNCONV_VARIABLE);      
     int nStage = GetStage(oPC);      
       
@@ -505,8 +504,9 @@ void main()
 					}   
                 }      
 				AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC);    
-				SetPersistantLocalInt(oPC, "CC0_DONE", 1);    
-				DelayCommand(0.1f, StartDynamicConversation("bg_soclass_cv", oPC));				    
+				SetPersistantLocalInt(oPC, "CC0_DONE", 1); 
+				SetPersistantLocalInt(oPC, "Background_Stage", 1);					
+				DelayCommand(0.1f, StartDynamicConversation("bg_soclass_cv", oPC, FALSE, FALSE, TRUE, OBJECT_SELF));			    
             }      
             else     
 			{ // No      
