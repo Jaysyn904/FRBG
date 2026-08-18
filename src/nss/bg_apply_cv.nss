@@ -18,8 +18,8 @@ object EnsurePlayerDataObject(object oPC)
     if (!GetIsObjectValid(oItem))    
     {    
         oItem = CreateItemOnObject("pc_data_object", oPC);
-		SendMessageToPC(oPC, "Language data object recreated");
-		WriteTimestampedLogEntry("Language data object recreated"); 		
+		SendMessageToPC(oPC, "PC data object recreated");
+		WriteTimestampedLogEntry("PC data object recreated"); 		
     }    
     return oItem;    
 }   
@@ -593,48 +593,99 @@ void main()
     }
     DeleteLocalString(oItem, "ARR_PROF"); */
 
-    // Step 7: Age Settings
-    switch (nAge)
-    {
+	// Step 7: Age Settings
+	// First read the index value (0-3) from CC6
+	//int nAgeIndex = GetLocalInt(oItem, "CC6");
+	int nAgeIndex = GetPersistantLocalInt(oPC, "CC6");
+	int nAgeCategory = AGE_CATEGORY_YOUTHFUL; // Default to Youthful
+
+	// DEBUG: Verify what we're reading
+	WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Age Index from CC6 = " + IntToString(nAgeIndex));
+	WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Local CC6 Value = " + IntToString(GetLocalInt(oItem, "CC6")));
+
+	// Convert the index to the constant value
+	switch (nAgeIndex)
+	{
+		case 0: 
+		{
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Age Category = Youthful");
+			nAgeCategory = AGE_CATEGORY_YOUTHFUL; 
+			break;
+		}
+		case 1: 
+		{
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Age Category = Middle Age");
+			nAgeCategory = AGE_CATEGORY_MIDDLE; 
+			break;
+		}
+		case 2: 
+		{
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Age Category = Old Age");
+			nAgeCategory = AGE_CATEGORY_OLD; 
+			break;
+		}
+		case 3: 
+		{
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Age Category = Venerable Age");
+			nAgeCategory = AGE_CATEGORY_VENERABLE; 
+			break;
+		}
+		default: 
+		{
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Age Category = Unknown (Defaulting to Youthful)");
+			nAgeCategory = AGE_CATEGORY_YOUTHFUL; 
+		}
+	}
+
+	// DEBUG: Verify conversion result
+	WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Converted Age Category = " + IntToString(nAgeCategory));
+
+	// Now apply the effects using the constant value
+	switch (nAgeCategory)
+	{
 		case AGE_CATEGORY_YOUTHFUL:
 		{
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Applying Youthful effects");
 			NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_YOUTHFUL, 1);
 			break;
-		}		
-        case AGE_CATEGORY_MIDDLE:
+		}        
+		case AGE_CATEGORY_MIDDLE:
 		{
-            NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_MIDDLE, 1);
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Applying Middle Age effects");
+			NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_MIDDLE, 1);
 			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_STRENGTH, iSTR-1);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CONSTITUTION, iCON-1);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_DEXTERITY, iDEX-1);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_INTELLIGENCE, iINT+1);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CHARISMA, iCHA+1);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_WISDOM, iWIS+1);
-            break;
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CONSTITUTION, iCON-1);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_DEXTERITY, iDEX-1);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_INTELLIGENCE, iINT+1);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CHARISMA, iCHA+1);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_WISDOM, iWIS+1);
+			break;
 		}
-        case AGE_CATEGORY_OLD:
+		case AGE_CATEGORY_OLD:
 		{
-            NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_OLD, 1);
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Applying Old Age effects");
+			NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_OLD, 1);
 			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_STRENGTH, iSTR-2);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CONSTITUTION, iCON-2);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_DEXTERITY, iDEX-2);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_INTELLIGENCE, iINT+2);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CHARISMA, iCHA+2);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_WISDOM, iWIS+2);
-            break;
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CONSTITUTION, iCON-2);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_DEXTERITY, iDEX-2);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_INTELLIGENCE, iINT+2);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CHARISMA, iCHA+2);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_WISDOM, iWIS+2);
+			break;
 		}
-        case AGE_CATEGORY_VENERABLE:
+		case AGE_CATEGORY_VENERABLE:
 		{
-            NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_VENERABLE, 1);
+			WriteTimestampedLogEntry("bg_apply_cv: DEBUG: Applying Venerable Age effects");
+			NWNX_Creature_AddFeatByLevel(oPC, AGE_CATEGORY_VENERABLE, 1);
 			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_STRENGTH, iSTR-3);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CONSTITUTION, iCON-3);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_DEXTERITY, iDEX-3);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_INTELLIGENCE, iINT+3);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CHARISMA, iCHA+3);
-            NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_WISDOM, iWIS+3);
-            break;
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CONSTITUTION, iCON-3);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_DEXTERITY, iDEX-3);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_INTELLIGENCE, iINT+3);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_CHARISMA, iCHA+3);
+			NWNX_Creature_SetRawAbilityScore(oPC, ABILITY_WISDOM, iWIS+3);
+			break;
 		}
-    }
+	}
 
     // Step 8: One-Armed?
     if (bDisfigured)
@@ -646,4 +697,7 @@ void main()
         SetCreatureBodyPart(CREATURE_PART_LEFT_FOREARM, 200, oPC);
         SetCreatureBodyPart(CREATURE_PART_LEFT_HAND, 200, oPC);
     }
+	
+	SendMessageToPC(oPC, "Character customization complete.");
+	FloatingTextStringOnCreature("Character customization complete.", oPC, FALSE);
 }

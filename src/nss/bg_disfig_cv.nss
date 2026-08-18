@@ -75,7 +75,40 @@ void main()
         SetPersistantLocalInt(oPC, "Background_Stage", 8);
 		DelayCommand(0.1f, ExecuteScript("bg_apply_cv", oPC));     
     } 
-	else 
+	else   
+	{    
+		int nChoice = GetChoice(oPC);    
+		if (nStage == STAGE_LIST)   
+		{    
+			SetLocalInt(oPC, "disfig_selected", nChoice);    
+			nStage = STAGE_CONFIRM;  
+			MarkStageNotSetUp(STAGE_LIST, oPC);  
+		}    
+		else if (nStage == STAGE_CONFIRM)   
+		{    
+			if (nChoice >= 0)   
+			{    
+				if (nChoice == 1)  
+				{  
+					SetLocalInt(oItem,"CC7",1);  
+					SetPersistantLocalInt(oPC,"CC7",1);  
+					SetLocalInt(oItem,"BG_Select",8);  
+				}  
+				else  
+				{  
+					SetLocalInt(oItem,"BG_Select",8);  
+				}  
+				AllowExit(DYNCONV_EXIT_FORCE_EXIT);				  
+			}   
+			else   
+			{    
+				nStage = STAGE_LIST;  
+				MarkStageNotSetUp(STAGE_CONFIRM, oPC);  
+			}    
+		}  
+		SetStage(nStage, oPC);  
+	}	
+	/* else 
 	{  
         int nChoice = GetChoice(oPC);  
         if (nStage == STAGE_LIST) 
@@ -99,14 +132,15 @@ void main()
 				else
 				{
 					SetLocalInt(oItem,"BG_Select",8);
-				}					
-				AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC);  								 	
+				}
+				AllowExit(DYNCONV_EXIT_FORCE_EXIT);				
+				//AllowExit(DYNCONV_EXIT_FORCE_EXIT, TRUE, oPC);  								 	
             } 
 			else 
 			{  
                 SetStage(STAGE_LIST, oPC);  
             }  
         }  
-        SetStage(nStage, oPC);  
-    }  
+        //SetStage(nStage, oPC);  
+    }   */
 }
